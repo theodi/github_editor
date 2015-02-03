@@ -43,6 +43,11 @@ gem 'jiffybag', github: 'theodi/jiffybag'
 gem 'devise'
 gem 'omniauth-github'
 
+# Github access
+gem "octokit", "~> 3.0"
+gem "memoist"
+
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
