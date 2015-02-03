@@ -14,8 +14,15 @@ require "sprockets/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+JiffyBag.configure %w{
+  GITHUB_CLIENT_ID
+  GITHUB_CLIENT_SECRET
+  APP_HOSTNAME
+}
+
 module GithubEditor
   class Application < Rails::Application
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
