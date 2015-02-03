@@ -35,6 +35,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'rails_12factor' # For heroku
 gem 'jiffybag', github: 'theodi/jiffybag'
 
+# Login with github
+gem 'devise'
+gem 'omniauth-github'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
