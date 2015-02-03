@@ -1,0 +1,4 @@
+JiffyBag.configure %w{
+  GITHUB_CLIENT_ID
+  GITHUB_CLIENT_SECRET
+}

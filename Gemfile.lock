@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/theodi/jiffybag.git
+  revision: 664e9f96335acfcc1240d8f3f4c41e3e33ab56c1
+  specs:
+    jiffybag (1.0.0)
+      dotenv (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -54,6 +61,7 @@ GEM
     columnize (0.9.0)
     debug_inspector (0.0.2)
     debugger-linecache (1.2.0)
+    dotenv (1.0.2)
     erubis (2.7.0)
     execjs (2.2.2)
     globalid (0.3.0)
@@ -100,6 +108,11 @@ GEM
       rails-deprecated_sanitizer (>= 1.0.1)
     rails-html-sanitizer (1.0.1)
       loofah (~> 2.0)
+    rails_12factor (0.0.3)
+      rails_serve_static_assets
+      rails_stdout_logging
+    rails_serve_static_assets (0.0.4)
+    rails_stdout_logging (0.0.3)
     railties (4.2.0)
       actionpack (= 4.2.0)
       activesupport (= 4.2.0)
@@ -152,8 +165,10 @@ DEPENDENCIES
   byebug
   coffee-rails (~> 4.1.0)
   jbuilder (~> 2.0)
+  jiffybag!
   jquery-rails
   rails (= 4.2.0)
+  rails_12factor
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   spring
