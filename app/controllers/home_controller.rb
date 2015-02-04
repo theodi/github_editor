@@ -1,6 +1,6 @@
 class HomeController < ApplicationController
   before_filter :get_parameters, except: :index
-
+  before_filter :check_logged_in, except: :index
   
   extend Memoist
 
@@ -21,11 +21,19 @@ class HomeController < ApplicationController
   
   private
   
+  def check_logged_in
+    unless user_signed_in?
+      session[:original_path] = request.path
+      redirect_to root_path
+    end
+  end
+  
   def get_parameters
     @user = params[:user]
     @repo = params[:repo]
     @branch = params[:branch]
     @filename = params[:filename] || "#{params[:path]}.#{params[:format]}"
+    @format = params[:format]
     @content = params[:content]
     @summary = params[:summary]
     @description = params[:description]

@@ -27,8 +27,6 @@
             <% if current_user %>
               <li><p class="navbar-text"><%= t(:signed_in_as) %> <%= current_user.email %></p></li>
               <li><%= link_to t(:sign_out), destroy_user_session_path %></li>
-            <% else %>
-              <li><%= link_to "#{fa_icon 'github'} #{t(:sign_in)}".html_safe, user_omniauth_authorize_path(:github) %></li>
             <% end %>
           </ul>
         </div><!--/.nav-collapse -->
