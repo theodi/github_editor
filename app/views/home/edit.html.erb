@@ -1,3 +1,6 @@
+<div class='alert alert-info'>
+  <%= t 'help.edit' %>
+</div>
 <%= text_area_tag 'content', @content, style: 'width: 100%; height: 500px; font-family: monospace' %>
+<%= submit_tag t(:submit_changes), class: 'btn btn-primary'%>
 
-<%= submit_tag "Submit changes".html_safe, class: 'btn btn-primary'%>

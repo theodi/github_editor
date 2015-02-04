@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GithubEditor</title>
+    <title><%= t(:site_title) %></title>
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
     <%= csrf_meta_tags %>
@@ -15,20 +15,20 @@
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
+            <span class="sr-only"><%= t(:toggle_navigation) %></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Github Editor</a>
+          <a class="navbar-brand" href="#"><%= t(:site_title) %></a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav navbar-right">
             <% if current_user %>
-              <li><p class="navbar-text">Signed in as <%= current_user.email %></p></li>
-              <li><%= link_to "Sign out", destroy_user_session_path %></li>
+              <li><p class="navbar-text"><%= t(:signed_in_as) %> <%= current_user.email %></p></li>
+              <li><%= link_to t(:sign_out), destroy_user_session_path %></li>
             <% else %>
-              <li><%= link_to "#{fa_icon 'github'} Sign in with Github".html_safe, user_omniauth_authorize_path(:github) %></li>
+              <li><%= link_to "#{fa_icon 'github'} #{t(:sign_in)}".html_safe, user_omniauth_authorize_path(:github) %></li>
             <% end %>
           </ul>
         </div><!--/.nav-collapse -->

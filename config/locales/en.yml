@@ -20,4 +20,11 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  site_title: GitHub editor
+  toggle_navigation: Toggle navigation
+  sign_in: Sign in with GitHub
+  sign_out: Sign out
+  signed_in_as: Signed in as
+  submit_changes: Submit changes
+  help:
+    edit: Make your changes in the editor below, then hit "Submit changes"
