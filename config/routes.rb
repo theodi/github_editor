@@ -9,5 +9,7 @@ Rails.application.routes.draw do
   root to: "home#index"
   
   get ":user/:repo/blob/:branch/*path" => "home#edit"
+
+  post "/commit" => "home#commit"
   
 end

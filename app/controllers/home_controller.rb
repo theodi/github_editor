@@ -6,8 +6,19 @@ class HomeController < ApplicationController
   end
   
   def edit
-    path = "#{params[:path]}.#{params[:format]}"
-    @content = get_files(path)[path]
+    @user = params[:user]
+    @repo = params[:repo]
+    @branch = params[:branch]
+    @filename = "#{params[:path]}.#{params[:format]}"
+    @content = get_files(@filename)[@filename]
+  end
+  
+  def commit
+    @user = params[:user]
+    @repo = params[:repo]
+    @branch = params[:branch]
+    branch = commit_file(params[:filename], params[:content])
+    @pr = open_pr(branch, @branch)
   end
   
   private
@@ -36,13 +47,13 @@ class HomeController < ApplicationController
   memoize :default_branch
 
   def latest_commit(branch_name)
-    branch_data = github.repos.branch user, repo, branch_name
+    branch_data = github.branch repo, branch_name
     branch_data['commit']['sha']
   end
   memoize :latest_commit
 
   def tree(branch)
-    github.tree(repo, branch, :recursive => true)
+    t = github.tree(repo, branch, :recursive => true)
   end
   memoize :tree
 
@@ -64,19 +75,18 @@ class HomeController < ApplicationController
   
 
   def create_blob(content)
-    blob = github.git_data.blobs.create user, repo, "content" => content, "encoding" => "utf-8"
-    blob['sha']
+    github.create_blob repo, content, "utf-8"
   end
 
   def add_blob_to_tree(sha, filename)
-    tree = tree default_branch
-    new_tree = github.git_data.trees.create user, repo, "base_tree" => tree['sha'], "tree" => [
-      "path" => filename,
-      "mode" => "100644",
-      "type" => "blob",
-      "sha" => sha
-    ]
-    new_tree['sha']
+    tree = tree @branch
+    new_tree = github.create_tree repo, [{
+      path: filename,
+      mode: "100644",
+      type: "blob",
+      sha: sha
+    }], base_tree: tree.sha
+    new_tree.sha
   end
 
   def get_files(name)
@@ -84,26 +94,27 @@ class HomeController < ApplicationController
     Hash[blobs.map{|x| [x[0], blob_content(x[1])]}]
   end
 
-  def commit(sha)
+  def commit_sha(sha)
     parent = latest_commit(default_branch)
-    commit = github.git_data.commits.create user, repo, "message" => commit_message,
-              "parents" => [parent],
-              "tree" => sha
-    commit['sha']
+    commit = github.create_commit repo, "testing", sha, [parent]
+    commit.sha
   end
   
   def create_branch(name, sha)
-    branch = github.git_data.references.create user, repo, "ref" => "refs/heads/#{name}", "sha" => sha
-    branch['ref']
+    branch = github.create_reference repo, "heads/#{name}", sha
+    branch.ref
   end
 
   def open_pr(head, base)
-    github.pull_requests.create user, repo,
-      "title" => pull_request_title,
-      "body" => pull_request_body,
-      "head" => head,
-      "base" => base
+    pr = github.create_pull_request repo, base, head, "testing", ""
+    pr.html_url
   end
   
+  def commit_file(name, content)    
+    blob_sha = create_blob(content)
+    tree_sha = add_blob_to_tree(blob_sha, name)
+    commit_sha = commit_sha(tree_sha)
+    create_branch(DateTime.now.to_s(:number), commit_sha)
+  end
 
 end
