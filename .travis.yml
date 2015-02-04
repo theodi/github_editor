@@ -4,3 +4,10 @@ rvm:
 - 1.9.3
 - jruby-19mode
 - rbx-2
+deploy:
+  provider: heroku
+  api_key:
+    secure: D8r/NjVLT4VQiTmk+EH2VBAtzvffmI54Nwa5GinejZ45z9h4ZksshQW+LMw4IQkHprPaFpLPOGNO3U7X9VEAw9K5G5yCoBexC9C5EMpQMi2qpbaHHvTGzVE1Nc/pLLx1aEzz8IsVshMU63SC/Q3OK6QUtrauLNSQh/i+IvwuCHo=
+  app: githubeditor
+  on:
+    repo: theodi/github_editor
