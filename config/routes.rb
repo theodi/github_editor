@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   
   get ":user/:repo/blob/:branch/*path" => "home#edit"
 
-  post "/commit" => "home#commit"
+  post "/message" => "home#message"
   
+  post "/commit" => "home#commit"
+
 end

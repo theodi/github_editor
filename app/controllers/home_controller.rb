@@ -9,6 +9,9 @@ class HomeController < ApplicationController
   
   def edit
     @content = get_files(@filename)[@filename]
+  end  
+
+  def message
   end
   
   def commit

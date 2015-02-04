@@ -3,7 +3,7 @@
   <%= t 'help.edit' %>
 </div>
 
-<%= form_tag action: 'commit' do %>
+<%= form_tag action: 'message' do %>
 
 <%= text_area_tag 'content', @content, style: 'width: 100%; height: 500px; font-family: monospace' %>
 <%= hidden_field_tag "filename", @filename %>
