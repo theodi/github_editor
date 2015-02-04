@@ -3,6 +3,11 @@ sudo: false
 cache: bundler
 rvm:
 - 2.2.0
+env:
+  global:
+    - GITHUB_CLIENT_ID=123abc432fdsfde
+    - GITHUB_CLIENT_SECRET=nu584h7g584hnf9ewpmvfen
+    - APP_HOSTNAME=editor.example.com
 deploy:
   provider: heroku
   api_key:
