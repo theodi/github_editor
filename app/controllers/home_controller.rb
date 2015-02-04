@@ -1,4 +1,6 @@
 class HomeController < ApplicationController
+  before_filter :get_parameters, except: :index
+
   
   extend Memoist
 
@@ -6,23 +8,26 @@ class HomeController < ApplicationController
   end
   
   def edit
-    @user = params[:user]
-    @repo = params[:repo]
-    @branch = params[:branch]
-    @filename = "#{params[:path]}.#{params[:format]}"
     @content = get_files(@filename)[@filename]
   end
   
   def commit
-    @user = params[:user]
-    @repo = params[:repo]
-    @branch = params[:branch]
-    branch = commit_file(params[:filename], params[:content])
-    @pr = open_pr(branch, @branch)
+    new_branch = commit_file(@filename, @content, @summary)
+    @pr = open_pr(new_branch, @branch, @summary, @description)
   end
   
   private
   
+  def get_parameters
+    @user = params[:user]
+    @repo = params[:repo]
+    @branch = params[:branch]
+    @filename = params[:filename] || "#{params[:path]}.#{params[:format]}"
+    @content = params[:content]
+    @summary = params[:summary]
+    @description = params[:description]
+  end
+
   def github
     @github = Octokit::Client.new(:access_token => session[:github_token])
   end
@@ -40,11 +45,6 @@ class HomeController < ApplicationController
   end
   
   GITHUB_REPO_REGEX = /github.com[:\/]([^\/]*)\/([^\.]*)/
-
-  def default_branch
-    github.repository(repo).default_branch
-  end
-  memoize :default_branch
 
   def latest_commit(branch_name)
     branch_data = github.branch repo, branch_name
@@ -90,13 +90,13 @@ class HomeController < ApplicationController
   end
 
   def get_files(name)
-    blobs = blob_shas(default_branch, name)
+    blobs = blob_shas(@branch, name)
     Hash[blobs.map{|x| [x[0], blob_content(x[1])]}]
   end
 
-  def commit_sha(sha)
-    parent = latest_commit(default_branch)
-    commit = github.create_commit repo, "testing", sha, [parent]
+  def commit_sha(sha, message)
+    parent = latest_commit(@branch)
+    commit = github.create_commit repo, message, sha, [parent]
     commit.sha
   end
   
@@ -105,15 +105,15 @@ class HomeController < ApplicationController
     branch.ref
   end
 
-  def open_pr(head, base)
-    pr = github.create_pull_request repo, base, head, "testing", ""
+  def open_pr(head, base, title, description)
+    pr = github.create_pull_request repo, base, head, title, description
     pr.html_url
   end
   
-  def commit_file(name, content)    
+  def commit_file(name, content, message)    
     blob_sha = create_blob(content)
     tree_sha = add_blob_to_tree(blob_sha, name)
-    commit_sha = commit_sha(tree_sha)
+    commit_sha = commit_sha(tree_sha, message)
     create_branch(DateTime.now.to_s(:number), commit_sha)
   end
 
