@@ -3,8 +3,6 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
-# Use sqlite3 as the database for Active Record
-gem 'sqlite3'
 
 # Bootstrap!
 gem 'bootstrap-sass', '~> 3.3.3'
@@ -49,6 +47,9 @@ gem "memoist"
 
 
 group :development, :test do
+  # Use sqlite3 as the database for Active Record
+  gem 'sqlite3'
+
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
 
@@ -62,5 +63,6 @@ group :development, :test do
 end
 
 group :production do
+  # Postgres on Heroku in production
   gem 'pg'
 end
