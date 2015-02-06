@@ -1,1 +1,12 @@
-<%= link_to @pr, @pr %>
+<div class='panel panel-success'>
+  <div class="panel-heading">
+    <%= fa_icon 'check-circle' %>
+    <%= t 'help.success_title' %>
+  </div>
+  <div class="panel-body">
+    <%= t 'help.success' %>
+  </div>
+</div>
+
+<%= link_to "#{fa_icon('globe')} #{t(:return)}".html_safe, @return_to, class: 'btn btn-primary' if @return_to %>
+<%= link_to "#{fa_icon('code-fork')} #{t(:open_pr)}".html_safe, @pr, class: 'btn btn-default' %>
