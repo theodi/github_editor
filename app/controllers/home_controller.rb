@@ -8,7 +8,7 @@ class HomeController < ApplicationController
   end
   
   def edit    
-    @content = get_files(@filename)[@filename]
+    @content = get_files(original_repo_path, @filename)[@filename]
     @lineendings = detect_line_endings(@content)
   end
 
@@ -71,19 +71,19 @@ class HomeController < ApplicationController
   end
   memoize :latest_commit
 
-  def tree(branch)
-    t = github.tree(user_repo_path, branch, :recursive => true)
+  def tree(repo, branch)
+    t = github.tree(repo, branch, :recursive => true)
   end
   memoize :tree
 
-  def blob_shas(branch, path)
-    tree = tree(branch).tree
+  def blob_shas(repo, branch, path)
+    tree = tree(repo, branch).tree
     Hash[tree.select{|x| x[:path] =~ /^#{path}$/ && x[:type] == 'blob'}.map{|x| [x.path, x.sha]}]
   end
   memoize :blob_shas
   
-  def blob_content(sha)
-    blob = github.blob user_repo_path, sha
+  def blob_content(repo, sha)
+    blob = github.blob repo, sha
     if blob['encoding'] == 'base64'
       Base64.decode64(blob['content'])
     else
@@ -93,13 +93,13 @@ class HomeController < ApplicationController
   memoize :blob_content
   
 
-  def create_blob(content)
-    github.create_blob user_repo_path, content, "utf-8"
+  def create_blob(repo, content)
+    github.create_blob repo, content, "utf-8"
   end
 
-  def add_blob_to_tree(sha, filename)
-    tree = tree @branch
-    new_tree = github.create_tree user_repo_path, [{
+  def add_blob_to_tree(repo, sha, filename)
+    tree = tree repo, @branch
+    new_tree = github.create_tree repo, [{
       path: filename,
       mode: "100644",
       type: "blob",
@@ -108,19 +108,19 @@ class HomeController < ApplicationController
     new_tree.sha
   end
 
-  def get_files(name)
-    blobs = blob_shas(@branch, name)
-    Hash[blobs.map{|x| [x[0], blob_content(x[1])]}]
+  def get_files(repo, name)
+    blobs = blob_shas(repo, @branch, name)
+    Hash[blobs.map{|x| [x[0], blob_content(repo, x[1])]}]
   end
 
-  def commit_sha(sha, message)
+  def commit_sha(repo, sha, message)
     parent = latest_commit(@branch)
-    commit = github.create_commit user_repo_path, message, sha, [parent]
+    commit = github.create_commit repo, message, sha, [parent]
     commit.sha
   end
   
-  def create_branch(name, sha)
-    branch = github.create_reference user_repo_path, "heads/#{name}", sha
+  def create_branch(repo, name, sha)
+    branch = github.create_reference repo, "heads/#{name}", sha
     branch.ref
   end
 
@@ -130,10 +130,10 @@ class HomeController < ApplicationController
   end
   
   def commit_file(name, content, message)    
-    blob_sha = create_blob(content)
-    tree_sha = add_blob_to_tree(blob_sha, name)
-    commit_sha = commit_sha(tree_sha, message)
-    create_branch(DateTime.now.to_s(:number), commit_sha)
+    blob_sha = create_blob(user_repo_path, content)
+    tree_sha = add_blob_to_tree(user_repo_path, blob_sha, name)
+    commit_sha = commit_sha(user_repo_path, tree_sha, message)
+    create_branch(user_repo_path, DateTime.now.to_s(:number), commit_sha)
   end
 
   def detect_line_endings(str)
