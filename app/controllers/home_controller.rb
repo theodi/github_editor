@@ -19,11 +19,16 @@ class HomeController < ApplicationController
     end
   end
   
-  def commit    
+  def commit
     # Fix line endings
     @content = convert_line_endings(@content, @lineendings)
-    new_branch = commit_file(@filename, @content, @summary)
-    @pr = open_pr("#{@current_user.username}:#{new_branch}", @branch, @summary, @description)
+    if github.repository(original_repo_path).permissions.push
+      new_branch = commit_file(original_repo_path, @filename, @content, @summary)
+      @pr = open_pr(new_branch, @branch, @summary, @description)
+    else
+      new_branch = commit_file(user_repo_path, @filename, @content, @summary)
+      @pr = open_pr("#{@current_user.username}:#{new_branch}", @branch, @summary, @description)
+    end    
   end
   
   private
@@ -65,8 +70,8 @@ class HomeController < ApplicationController
   
   GITHUB_REPO_REGEX = /github.com[:\/]([^\/]*)\/([^\.]*)/
 
-  def latest_commit(branch_name)
-    branch_data = github.branch user_repo_path, branch_name
+  def latest_commit(repo, branch_name)
+    branch_data = github.branch repo, branch_name
     branch_data['commit']['sha']
   end
   memoize :latest_commit
@@ -114,7 +119,7 @@ class HomeController < ApplicationController
   end
 
   def commit_sha(repo, sha, message)
-    parent = latest_commit(@branch)
+    parent = latest_commit(repo, @branch)
     commit = github.create_commit repo, message, sha, [parent]
     commit.sha
   end
@@ -129,11 +134,11 @@ class HomeController < ApplicationController
     pr.html_url
   end
   
-  def commit_file(name, content, message)    
-    blob_sha = create_blob(user_repo_path, content)
-    tree_sha = add_blob_to_tree(user_repo_path, blob_sha, name)
-    commit_sha = commit_sha(user_repo_path, tree_sha, message)
-    create_branch(user_repo_path, DateTime.now.to_s(:number), commit_sha)
+  def commit_file(repo, name, content, message)    
+    blob_sha = create_blob(repo, content)
+    tree_sha = add_blob_to_tree(repo, blob_sha, name)
+    commit_sha = commit_sha(repo, tree_sha, message)
+    create_branch(repo, DateTime.now.to_s(:number), commit_sha)
   end
 
   def detect_line_endings(str)
