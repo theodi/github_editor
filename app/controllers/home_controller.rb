@@ -7,9 +7,10 @@ class HomeController < ApplicationController
   def index
   end
   
-  def edit
+  def edit    
     @content = get_files(@filename)[@filename]
-  end  
+    @lineendings = detect_line_endings(@content)
+  end
 
   def message
     # Prepare a fork if we don't have permission to push
@@ -19,6 +20,8 @@ class HomeController < ApplicationController
   end
   
   def commit    
+    # Fix line endings
+    @content = convert_line_endings(@content, @lineendings)
     new_branch = commit_file(@filename, @content, @summary)
     @pr = open_pr("#{@current_user.username}:#{new_branch}", @branch, @summary, @description)
   end
@@ -41,6 +44,7 @@ class HomeController < ApplicationController
     @content = params[:content]
     @summary = params[:summary]
     @description = params[:description]
+    @lineendings = params[:lineendings]
   end
 
   def github
@@ -130,6 +134,30 @@ class HomeController < ApplicationController
     tree_sha = add_blob_to_tree(blob_sha, name)
     commit_sha = commit_sha(tree_sha, message)
     create_branch(DateTime.now.to_s(:number), commit_sha)
+  end
+
+  def detect_line_endings(str)
+    case str
+    when /\r\n/
+      :crlf
+    when /\r/
+      :cr
+    when /\n/
+      :lf
+    else
+      nil
+    end
+  end
+
+  def convert_line_endings(str, lineendings)
+    case lineendings.to_sym
+    when :cr
+      str.gsub("\r\n", "\r")
+    when :lf
+      str.gsub("\r\n", "\n")
+    else
+      str
+    end
   end
 
 end

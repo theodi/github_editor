@@ -22,6 +22,7 @@ Description:
 <%= hidden_field_tag "repo", @repo %>
 <%= hidden_field_tag "branch", @branch %>
 <%= hidden_field_tag "content", @content %>
+<%= hidden_field_tag "lineendings", @lineendings %>
 <%= submit_tag t(:submit_changes), class: 'btn btn-primary'%>
 
 <% end %>
