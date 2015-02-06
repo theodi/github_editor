@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   
   root to: "home#index"
   
-  get ":user/:repo/blob/:branch/*path" => "home#edit"
+  get ":owner/:repo/blob/:branch/*path" => "home#edit"
 
   post "/message" => "home#message"
   

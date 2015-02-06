@@ -12,11 +12,15 @@ class HomeController < ApplicationController
   end  
 
   def message
+    # Prepare a fork if we don't have permission to push
+    unless github.repository(original_repo_path).permissions.push
+      github.fork original_repo_path
+    end
   end
   
-  def commit
+  def commit    
     new_branch = commit_file(@filename, @content, @summary)
-    @pr = open_pr(new_branch, @branch, @summary, @description)
+    @pr = open_pr("#{@current_user.username}:#{new_branch}", @branch, @summary, @description)
   end
   
   private
@@ -29,7 +33,7 @@ class HomeController < ApplicationController
   end
   
   def get_parameters
-    @user = params[:user]
+    @owner = params[:owner]
     @repo = params[:repo]
     @branch = params[:branch]
     @filename = params[:filename] || "#{params[:path]}.#{params[:format]}"
@@ -42,13 +46,13 @@ class HomeController < ApplicationController
   def github
     @github = Octokit::Client.new(:access_token => session[:github_token])
   end
-  
-  def user
-    params[:user]
+
+  def original_repo_path
+    "#{@owner}/#{@repo}"
   end
   
-  def repo
-    "#{user}/#{params[:repo]}"
+  def user_repo_path
+    "#{current_user.username}/#{@repo}"
   end
   
   def branch
@@ -58,13 +62,13 @@ class HomeController < ApplicationController
   GITHUB_REPO_REGEX = /github.com[:\/]([^\/]*)\/([^\.]*)/
 
   def latest_commit(branch_name)
-    branch_data = github.branch repo, branch_name
+    branch_data = github.branch user_repo_path, branch_name
     branch_data['commit']['sha']
   end
   memoize :latest_commit
 
   def tree(branch)
-    t = github.tree(repo, branch, :recursive => true)
+    t = github.tree(user_repo_path, branch, :recursive => true)
   end
   memoize :tree
 
@@ -75,7 +79,7 @@ class HomeController < ApplicationController
   memoize :blob_shas
   
   def blob_content(sha)
-    blob = github.blob repo, sha
+    blob = github.blob user_repo_path, sha
     if blob['encoding'] == 'base64'
       Base64.decode64(blob['content'])
     else
@@ -86,12 +90,12 @@ class HomeController < ApplicationController
   
 
   def create_blob(content)
-    github.create_blob repo, content, "utf-8"
+    github.create_blob user_repo_path, content, "utf-8"
   end
 
   def add_blob_to_tree(sha, filename)
     tree = tree @branch
-    new_tree = github.create_tree repo, [{
+    new_tree = github.create_tree user_repo_path, [{
       path: filename,
       mode: "100644",
       type: "blob",
@@ -107,17 +111,17 @@ class HomeController < ApplicationController
 
   def commit_sha(sha, message)
     parent = latest_commit(@branch)
-    commit = github.create_commit repo, message, sha, [parent]
+    commit = github.create_commit user_repo_path, message, sha, [parent]
     commit.sha
   end
   
   def create_branch(name, sha)
-    branch = github.create_reference repo, "heads/#{name}", sha
+    branch = github.create_reference user_repo_path, "heads/#{name}", sha
     branch.ref
   end
 
   def open_pr(head, base, title, description)
-    pr = github.create_pull_request repo, base, head, title, description
+    pr = github.create_pull_request original_repo_path, base, head, title, description
     pr.html_url
   end
   
