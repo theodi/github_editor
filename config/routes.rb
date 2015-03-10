@@ -8,7 +8,9 @@ Rails.application.routes.draw do
   
   root to: "home#index"
   
-  get ":owner/:repo/blob/:branch/*path" => "home#edit"
+  constraints(path: /[^\?]+/) do
+    get ":owner/:repo/blob/:branch/*path" => "home#edit", :format => false
+  end
 
   post "/message" => "home#message"
   

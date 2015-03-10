@@ -44,8 +44,8 @@ class HomeController < ApplicationController
     @owner = params[:owner]
     @repo = params[:repo]
     @branch = params[:branch]
-    @filename = params[:filename] || "#{params[:path]}.#{params[:format]}"
-    @format = params[:format]
+    @filename = params[:filename] || params[:path]
+    @format = @filename.split('.').last
     @content = params[:content]
     @summary = params[:summary]
     @description = params[:description]
