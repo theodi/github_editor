@@ -28,7 +28,11 @@ class HomeController < ApplicationController
     else
       new_branch = commit_file(user_repo_path, @filename, @content, @summary)
       @pr = open_pr("#{@current_user.username}:#{new_branch}", @branch, @summary, @description)
-    end    
+    end
+    # Check for CLA
+    @cla_url = "https://www.clahub.com/agreements/#{original_repo_path}"
+    r = Faraday.get @cla_url
+    @has_cla = (r.status == 200)
   end
   
   private

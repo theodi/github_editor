@@ -4,7 +4,17 @@
     <%= t 'help.success_title' %>
   </div>
   <div class="panel-body">
-    <%= t 'help.success' %>
+    <p>
+      <%= t 'help.success' %>
+    </p>
+    <% if @has_cla %>
+      <p>
+        <%= t :cla %>
+      </p>
+      <p>
+        <%= link_to "#{fa_icon('check')} #{t(:sign_cla)}".html_safe, @cla_url, class: 'btn btn-primary' %>
+      </p>
+    <% end %>
   </div>
 </div>
 
