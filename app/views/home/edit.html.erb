@@ -6,7 +6,12 @@
     <%= t 'help.edit' %>
   </div>
   <div class="panel-body">
-    <%= text_area_tag 'content', @content, style: 'width: 100%; height: 500px; font-family: monospace' %>
+    <%= case @format
+    when "csv"
+      render 'csv_editor' 
+    else
+      render 'text_editor'
+    end %>
   </div>
 </div>
 
